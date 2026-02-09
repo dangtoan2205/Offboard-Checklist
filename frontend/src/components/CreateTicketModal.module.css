@@ -66,6 +66,7 @@
   grid-template-columns: 1fr 1fr;
   gap: 16px;
   margin-bottom: 24px;
+  align-items: start;
 }
 
 .grid label {
@@ -75,6 +76,17 @@
   font-size: 0.9rem;
   font-weight: 500;
   color: var(--text);
+}
+
+.grid label .labelText {
+  display: block;
+  min-height: 1.5em;
+  line-height: 1.4;
+}
+
+.grid label input,
+.grid label select {
+  flex-shrink: 0;
 }
 
 .grid label:nth-child(7),

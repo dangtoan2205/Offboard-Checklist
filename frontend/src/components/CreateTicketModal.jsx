@@ -72,29 +72,29 @@ export default function CreateTicketModal({ open, onClose, onCreated, apiBase })
           {error && <div className={styles.error}>{error}</div>}
           <div className={styles.grid}>
             <label>
-              Họ và tên nhân viên <span className={styles.required}>*</span>
+              <span className={styles.labelText}>Họ và tên nhân viên <span className={styles.required}>*</span></span>
               <input
                 type="text"
                 name="employee_name"
                 value={form.employee_name}
                 onChange={handleChange}
                 required
-                placeholder="Nguyễn Văn A"
+                placeholder="Họ và tên nhân viên"
               />
             </label>
             <label>
-              ID <span className={styles.required}>*</span>
+              <span className={styles.labelText}>ID <span className={styles.required}>*</span></span>
               <input
                 type="text"
                 name="employee_id"
                 value={form.employee_id}
                 onChange={handleChange}
                 required
-                placeholder="7156"
+                placeholder="ID của nhân viên"
               />
             </label>
             <label>
-              Email <span className={styles.required}>*</span>
+              <span className={styles.labelText}>Email <span className={styles.required}>*</span></span>
               <input
                 type="email"
                 name="email"
@@ -105,27 +105,27 @@ export default function CreateTicketModal({ open, onClose, onCreated, apiBase })
               />
             </label>
             <label>
-              Vị trí
+              <span className={styles.labelText}>Vị trí</span>
               <input
                 type="text"
                 name="position"
                 value={form.position}
                 onChange={handleChange}
-                placeholder="Python Developer"
+                placeholder="Developer, QA, ..."
               />
             </label>
             <label>
-              Manager
+              <span className={styles.labelText}>Manager</span>
               <input
                 type="text"
                 name="manager"
                 value={form.manager}
                 onChange={handleChange}
-                placeholder="Bùi Tiến Đạt"
+                placeholder="Họ và tên quản lý"
               />
             </label>
             <label>
-              Ngày làm việc cuối cùng
+              <span className={styles.labelText}>Ngày làm việc cuối cùng</span>
               <input
                 type="date"
                 name="last_working_day"
@@ -134,7 +134,7 @@ export default function CreateTicketModal({ open, onClose, onCreated, apiBase })
               />
             </label>
             <label>
-              Trạng thái
+              <span className={styles.labelText}>Trạng thái</span>
               <select name="status" value={form.status} onChange={handleChange}>
                 {STATUS_OPTIONS.map((s) => (
                   <option key={s} value={s}>{s}</option>
@@ -142,7 +142,7 @@ export default function CreateTicketModal({ open, onClose, onCreated, apiBase })
               </select>
             </label>
             <label>
-              Người tạo
+              <span className={styles.labelText}>Người tạo</span>
               <input
                 type="text"
                 name="created_by"
