@@ -4,6 +4,20 @@ const { pool } = require('../db/config');
 const checklistTemplate = require('../db/checklistTemplate');
 const XLSX = require('xlsx');
 
+// Compute ticket status from checklist: all Hoàn thành -> Hoàn thành; any in progress -> Đang thực hiện; else Chưa thực hiện
+async function computeTicketStatusFromChecklist(ticketId) {
+  const { rows } = await pool.query(
+    'SELECT status FROM checklist_items WHERE ticket_id = $1',
+    [ticketId]
+  );
+  if (rows.length === 0) return { status: 'Chưa thực hiện', completed_at: null };
+  const allDone = rows.every((r) => r.status === 'Hoàn thành');
+  const anyInProgress = rows.some((r) => r.status === 'Đang thực hiện' || r.status === 'Hoàn thành');
+  if (allDone) return { status: 'Hoàn thành', completed_at: new Date() };
+  if (anyInProgress) return { status: 'Đang thực hiện', completed_at: null };
+  return { status: 'Chưa thực hiện', completed_at: null };
+}
+
 // List all tickets
 router.get('/', async (req, res) => {
   try {
@@ -114,7 +128,7 @@ router.patch('/:id', async (req, res) => {
   }
 });
 
-// Update checklist item
+// Update checklist item (and auto-update ticket status from checklist)
 router.patch('/:id/checklist/:itemId', async (req, res) => {
   try {
     const { id, itemId } = req.params;
@@ -133,6 +147,14 @@ router.patch('/:id/checklist/:itemId', async (req, res) => {
       values
     );
     if (rows.length === 0) return res.status(404).json({ error: 'Checklist item not found' });
+
+    // Tự động cập nhật Trạng thái ticket theo checklist
+    const ticketUpdate = await computeTicketStatusFromChecklist(id);
+    await pool.query(
+      'UPDATE tickets SET status = $1, completed_at = $2 WHERE id = $3',
+      [ticketUpdate.status, ticketUpdate.completed_at, id]
+    );
+
     res.json(rows[0]);
   } catch (err) {
     res.status(500).json({ error: err.message });

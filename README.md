@@ -14,15 +14,27 @@
 
 ## Chạy dự án
 
-### 1. Database (PostgreSQL bằng Docker)
+### 1. Chạy toàn bộ bằng Docker (DB + Backend + Frontend)
 
 Ở thư mục gốc dự án:
 
 ```bash
-docker-compose up -d
+docker-compose up -d --build
 ```
 
-PostgreSQL chạy tại `localhost:5432`, database `offboard_checklist`, user `postgres`, password `password` (khớp với `backend/.env.example`).
+- **Frontend:** http://localhost:3000  
+- **Backend API:** http://localhost:4000  
+- **PostgreSQL:** localhost:5432 (database `offboard_checklist`, user `postgres`, password `password`)
+
+**Chỉ chạy database** (khi dev backend + frontend bằng `npm run dev` trên máy):
+
+```bash
+docker-compose up -d db
+```
+
+Giữ container `db` chạy khi bạn chạy `npm run dev` cho backend/frontend. Nếu tắt Docker (hoặc chỉ tắt `db`), backend sẽ không kết nối được DB và `npm run db:init` sẽ báo ECONNREFUSED. Khi DB bị ngắt giữa chừng, backend đã được cấu hình để không crash (chỉ log lỗi); khởi động lại DB rồi gửi request lại là được.
+
+PostgreSQL chạy tại `localhost:5432`, khớp với `backend/.env.example`.
 
 Nếu dùng PostgreSQL cài sẵn trên máy, tạo database:
 
