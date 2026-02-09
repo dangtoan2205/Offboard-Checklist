@@ -128,6 +128,39 @@ router.patch('/:id', async (req, res) => {
   }
 });
 
+// Bulk update checklist items (same status, date, evidence for many items)
+router.patch('/:id/checklist/bulk', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { item_ids: itemIds, status, completed_at, evidence_note } = req.body;
+    if (!Array.isArray(itemIds) || itemIds.length === 0) {
+      return res.status(400).json({ error: 'item_ids must be a non-empty array' });
+    }
+    const updates = {};
+    if (status !== undefined) updates.status = status;
+    if (completed_at !== undefined) updates.completed_at = completed_at;
+    if (evidence_note !== undefined) updates.evidence_note = evidence_note;
+    if (Object.keys(updates).length === 0) {
+      return res.status(400).json({ error: 'Provide at least one of: status, completed_at, evidence_note' });
+    }
+    const setClause = Object.keys(updates).map((k, i) => `${k} = $${i + 1}`).join(', ');
+    const values = Object.values(updates);
+    const placeholders = itemIds.map((_, i) => `$${values.length + i + 1}`).join(',');
+    const { rowCount } = await pool.query(
+      `UPDATE checklist_items SET ${setClause} WHERE ticket_id = $${values.length + itemIds.length + 1} AND id IN (${placeholders})`,
+      [...values, ...itemIds, id]
+    );
+    const ticketUpdate = await computeTicketStatusFromChecklist(id);
+    await pool.query(
+      'UPDATE tickets SET status = $1, completed_at = $2 WHERE id = $3',
+      [ticketUpdate.status, ticketUpdate.completed_at, id]
+    );
+    res.json({ updated: rowCount });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Update checklist item (and auto-update ticket status from checklist)
 router.patch('/:id/checklist/:itemId', async (req, res) => {
   try {
